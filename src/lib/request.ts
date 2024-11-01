@@ -13,7 +13,7 @@ class RequestError extends Error {
   }
 }
 
-const BASE_URL = 'http://localhost:3000/api';
+const BASE_URL = import.meta.env.PROD ? '/api' : 'http://localhost:3000/api';
 
 const getUserId = () => {
   let userId = localStorage.getItem('userId');

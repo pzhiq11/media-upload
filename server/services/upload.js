@@ -1,7 +1,17 @@
 import qiniu from 'qiniu';
-import fs from 'fs';
+import { MongoClient } from 'mongodb';
 
-const HISTORY_FILE = './upload-history.json';
+const uri = process.env.MONGODB_URI;
+const client = new MongoClient(uri);
+let db;
+
+async function connectDB() {
+  if (!db) {
+    await client.connect();
+    db = client.db('media-upload');
+  }
+  return db;
+}
 
 // 七牛云配置
 const mac = new qiniu.auth.digest.Mac(
@@ -14,13 +24,6 @@ config.zone = qiniu.zone.Zone_z2;
 
 const formUploader = new qiniu.form_up.FormUploader(config);
 const putExtra = new qiniu.form_up.PutExtra();
-
-// 确保历史记录文件存在
-const ensureHistoryFile = () => {
-  if (!fs.existsSync(HISTORY_FILE)) {
-    fs.writeFileSync(HISTORY_FILE, JSON.stringify({}), 'utf8');
-  }
-};
 
 export const uploadToQiniu = (file) => {
   return new Promise((resolve, reject) => {
@@ -56,36 +59,26 @@ export const uploadToQiniu = (file) => {
   });
 };
 
-export const readHistory = (userId) => {
+export const readHistory = async (userId) => {
   try {
-    ensureHistoryFile();
-    const content = fs.readFileSync(HISTORY_FILE, 'utf8');
-    // 处理空文件的情况
-    if (!content.trim()) {
-      return [];
-    }
-    const allHistory = JSON.parse(content);
-    return allHistory[userId] || [];
+    const db = await connectDB();
+    const history = await db.collection('history')
+      .findOne({ userId }, { projection: { _id: 0, files: 1 } });
+    return history?.files || [];
   } catch (error) {
     console.error('读取历史记录失败:', error);
     return [];
   }
 };
 
-export const saveHistory = (userId, userHistory) => {
+export const saveHistory = async (userId, files) => {
   try {
-    ensureHistoryFile();
-    let allHistory = {};
-    const content = fs.readFileSync(HISTORY_FILE, 'utf8');
-    
-    // 处理空文件的情况
-    if (content.trim()) {
-      allHistory = JSON.parse(content);
-    }
-    
-    // 更新指定用户的历史记录
-    allHistory[userId] = userHistory;
-    fs.writeFileSync(HISTORY_FILE, JSON.stringify(allHistory, null, 2));
+    const db = await connectDB();
+    await db.collection('history').updateOne(
+      { userId },
+      { $set: { files } },
+      { upsert: true }
+    );
   } catch (error) {
     console.error('保存历史记录失败:', error);
   }
