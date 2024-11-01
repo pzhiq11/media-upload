@@ -1,5 +1,5 @@
 import React from 'react';
-import { Link, Check } from 'lucide-react';
+import { Link } from 'lucide-react';
 import toast from 'react-hot-toast';
 
 interface UploadStatusProps {
@@ -12,6 +12,7 @@ export function UploadStatus({ imageUrl }: UploadStatusProps) {
       await navigator.clipboard.writeText(imageUrl);
       toast.success('链接已复制到剪贴板！');
     } catch (error) {
+      console.log(error);
       toast.error('复制链接失败');
     }
   };

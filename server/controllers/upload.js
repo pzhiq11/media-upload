@@ -7,16 +7,20 @@ export const uploadImage = async (req, res, next) => {
     }
 
     const result = await uploadToQiniu(req.file);
+    const timestamp = Date.now();
     
     // 保存到历史记录
     const history = readHistory();
     history.unshift({
       ...result,
-      timestamp: Date.now()
+      timestamp
     });
     saveHistory(history);
 
-    res.success(result);
+    res.success({
+      ...result,
+      timestamp
+    });
   } catch (error) {
     next(error);
   }
