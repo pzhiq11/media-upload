@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import DropZone from './components/DropZone';
 import UploadHistory from './components/UploadHistory';
+import { api } from './lib/api';
 
 interface UploadedFile {
   url: string;
@@ -16,8 +17,7 @@ function App() {
   useEffect(() => {
     const fetchHistory = async () => {
       try {
-        const response = await fetch('http://localhost:3000/api/upload-history');
-        const history = await response.json();
+        const history = await api.getUploadHistory();
         setUploadedFiles(history);
       } catch (error) {
         console.error('Failed to fetch history:', error);

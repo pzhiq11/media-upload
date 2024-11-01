@@ -1,6 +1,6 @@
 import React, { useCallback, useRef, useState } from 'react';
 import { Upload } from 'lucide-react';
-import { uploadImage } from '../lib/api';
+import { api } from '../lib/api';
 
 interface DropZoneProps {
   onUploadStart: () => void;
@@ -13,21 +13,21 @@ export const DropZone: React.FC<DropZoneProps> = ({ onUploadStart, onUploadSucce
   const [isDragging, setIsDragging] = useState(false);
   const [isUploading, setIsUploading] = useState(false);
 
-  const onFileSelect = useCallback((
-    async (file: File) => {
-      if (disabled) return;
-      onUploadStart();
-      setIsUploading(true);
-      try {
-        const response = await uploadImage(file);
-        onUploadSuccess(response.url, response.publicId);
-      } catch (error) {
-        console.error('Upload failed:', error);
-      } finally {
-        setIsUploading(false);
-      }
+  const onFileSelect = async (file: File) => {
+    if (disabled) return;
+    
+    onUploadStart();
+    setIsUploading(true);
+    
+    try {
+      const result = await api.uploadImage(file);
+      onUploadSuccess(result.url, result.key);
+    } catch (error) {
+      console.error('Upload failed:', error);
+    } finally {
+      setIsUploading(false);
     }
-  ),[disabled, onUploadStart, onUploadSuccess]);
+  };
 
   const handleDrag = useCallback((e: React.DragEvent) => {
     e.preventDefault();

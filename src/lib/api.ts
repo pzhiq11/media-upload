@@ -1,18 +1,21 @@
-const API_URL = 'http://localhost:3000/api';
+import { request } from './request';
 
-export async function uploadImage(file: File): Promise<{ url: string; publicId: string }> {
-  const formData = new FormData();
-  formData.append('image', file);
-
-  const response = await fetch(`${API_URL}/upload`, {
-    method: 'POST',
-    body: formData,
-  });
-
-  if (!response.ok) {
-    const error = await response.json();
-    throw new Error(error.message || 'Upload failed');
-  }
-
-  return response.json();
+export interface UploadedFile {
+  url: string;
+  key: string;
+  timestamp: number;
 }
+
+export const api = {
+  // 上传图片
+  uploadImage: async (file: File) => {
+    const formData = new FormData();
+    formData.append('image', file);
+    return request.post<UploadedFile>('/upload', formData);
+  },
+
+  // 获取上传历史
+  getUploadHistory: () => {
+    return request.get<UploadedFile[]>('/upload-history');
+  }
+};
