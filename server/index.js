@@ -19,8 +19,10 @@ const mac = new qiniu.auth.digest.Mac(
 );
 
 const config = new qiniu.conf.Config();
-// 空间对应的机房，根据实际情况选择
-config.zone = qiniu.zone.Zone_z2; // 华东机房
+// config.zone = qiniu.zone.Zone_z0; // 华东机房
+// config.zone = qiniu.zone.Zone_z1; // 华北机房
+config.zone = qiniu.zone.Zone_z2; // 华南机房
+// config.zone = qiniu.zone.Zone_na0; // 北美机房
 
 const formUploader = new qiniu.form_up.FormUploader(config);
 const putExtra = new qiniu.form_up.PutExtra();
@@ -34,6 +36,15 @@ app.post('/api/upload', upload.single('image'), async (req, res) => {
       return res.status(400).json({ error: '没有上传文件' });
     }
 
+    // 获取文件扩展名
+    const ext = req.file.originalname.split('.').pop().toLowerCase();
+    // 生成随机字符串作为文件名
+    const randomString = Math.random().toString(36).substring(2, 10);
+    // 规范的文件命名格式：yyyy-mm-dd/random-string.ext
+    const date = new Date();
+    const datePrefix = `${date.getFullYear()}${String(date.getMonth() + 1).padStart(2, '0')}${String(date.getDate()).padStart(2, '0')}`;
+    const key = `images/${datePrefix}/${randomString}.${ext}`;
+
     // 生成上传凭证
     const options = {
       scope: process.env.QINIU_BUCKET,
@@ -42,12 +53,13 @@ app.post('/api/upload', upload.single('image'), async (req, res) => {
     const putPolicy = new qiniu.rs.PutPolicy(options);
     const uploadToken = putPolicy.uploadToken(mac);
 
-    // 生成文件key，使用时间戳和原始文件名
-    const key = `${Date.now()}-${req.file.originalname}`;
+    if (!uploadToken) {
+      throw new Error('Failed to generate upload token');
+    }
 
-    // 上传文件
     const uploadPromise = new Promise((resolve, reject) => {
       formUploader.putFile(uploadToken, key, req.file.path, putExtra, (err, body, info) => {
+        console.log('response',err, body, info);
         if (err) {
           reject(err);
         }
@@ -60,12 +72,8 @@ app.post('/api/upload', upload.single('image'), async (req, res) => {
     });
 
     const result = await uploadPromise;
-    
-    // 清理临时文件
     fs.unlinkSync(req.file.path);
-
-    // 返回文件访问链接
-    const fileUrl = `${process.env.QINIU_DOMAIN}/${key}`;
+    const fileUrl = `${process.env.QINIU_DOMAIN}/images/${datePrefix}/${randomString}.${ext}`;
     res.json({
       url: fileUrl,
       key: key
