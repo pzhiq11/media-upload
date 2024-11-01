@@ -23,6 +23,28 @@ const UploadHistory: React.FC<UploadHistoryProps> = ({ files }) => {
     }
   };
 
+  const formatDate = (timestamp: number) => {
+    try {
+      // 确保时间戳是有效的数字
+      const date = new Date(Number(timestamp));
+      if (isNaN(date.getTime())) {
+        return '未知时间';
+      }
+      return date.toLocaleString('zh-CN', {
+        year: 'numeric',
+        month: '2-digit',
+        day: '2-digit',
+        hour: '2-digit',
+        minute: '2-digit',
+        second: '2-digit',
+        hour12: false
+      });
+    } catch (error) {
+      console.error('时间格式化错误:', error);
+      return '未知时间';
+    }
+  };
+
   return (
     <div className="mt-6">
       <h3 className="text-lg font-semibold mb-3">上传历史</h3>
@@ -38,7 +60,7 @@ const UploadHistory: React.FC<UploadHistoryProps> = ({ files }) => {
               <div className="flex-1 min-w-0">
                 <p className="text-sm text-gray-500 truncate">{file.url}</p>
                 <p className="text-xs text-gray-400">
-                  {new Date(file.timestamp).toLocaleString()}
+                  {formatDate(file.timestamp)}
                 </p>
               </div>
               <button
