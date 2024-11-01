@@ -1,14 +1,34 @@
-import React, { useCallback } from 'react';
+import React, { useCallback, useRef, useState } from 'react';
 import { Upload } from 'lucide-react';
+import { uploadImage } from '../lib/api';
 
 interface DropZoneProps {
-  onFileSelect: (file: File) => void;
-  isDragging: boolean;
-  setIsDragging: (isDragging: boolean) => void;
-  isUploading: boolean;
+  onUploadStart: () => void;
+  onUploadSuccess: (url: string, publicId: string) => void;
+  disabled?: boolean;
 }
 
-export function DropZone({ onFileSelect, isDragging, setIsDragging, isUploading }: DropZoneProps) {
+export const DropZone: React.FC<DropZoneProps> = ({ onUploadStart, onUploadSuccess, disabled }) => {
+  const fileInputRef = useRef<HTMLInputElement>(null);
+  const [isDragging, setIsDragging] = useState(false);
+  const [isUploading, setIsUploading] = useState(false);
+
+  const onFileSelect = useCallback((
+    async (file: File) => {
+      if (disabled) return;
+      onUploadStart();
+      setIsUploading(true);
+      try {
+        const response = await uploadImage(file);
+        onUploadSuccess(response.url, response.publicId);
+      } catch (error) {
+        console.error('Upload failed:', error);
+      } finally {
+        setIsUploading(false);
+      }
+    }
+  ),[disabled, onUploadStart, onUploadSuccess]);
+
   const handleDrag = useCallback((e: React.DragEvent) => {
     e.preventDefault();
     e.stopPropagation();
@@ -17,7 +37,7 @@ export function DropZone({ onFileSelect, isDragging, setIsDragging, isUploading 
     } else if (e.type === "dragleave") {
       setIsDragging(false);
     }
-  }, [setIsDragging]);
+  }, []);
 
   const handleDrop = useCallback((e: React.DragEvent) => {
     e.preventDefault();
@@ -28,7 +48,7 @@ export function DropZone({ onFileSelect, isDragging, setIsDragging, isUploading 
     if (files?.[0]) {
       onFileSelect(files[0]);
     }
-  }, [onFileSelect, setIsDragging]);
+  }, [onFileSelect]);
 
   const handleChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
     e.preventDefault();
@@ -37,9 +57,15 @@ export function DropZone({ onFileSelect, isDragging, setIsDragging, isUploading 
     }
   }, [onFileSelect]);
 
+  const handleClick = () => {
+    if (!disabled && fileInputRef.current) {
+      fileInputRef.current.click();
+    }
+  };
+
   return (
     <div
-      className={`relative w-full h-64 border-2 border-dashed rounded-lg transition-colors duration-200 flex flex-col items-center justify-center p-6 text-center
+      className={`relative w-full h-64 border-2 border-dashed rounded-lg transition-colors duration-200 flex flex-col items-center justify-center p-6 text-center cursor-pointer
         ${isDragging 
           ? 'border-blue-500 bg-blue-50' 
           : 'border-gray-300 bg-gray-50 hover:bg-gray-100'}
@@ -48,13 +74,15 @@ export function DropZone({ onFileSelect, isDragging, setIsDragging, isUploading 
       onDragLeave={handleDrag}
       onDragOver={handleDrag}
       onDrop={handleDrop}
+      onClick={handleClick}
     >
       <input
         type="file"
-        className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
+        ref={fileInputRef}
         onChange={handleChange}
         accept="image/*"
-        disabled={isUploading}
+        className="hidden"
+        disabled={disabled}
       />
       <Upload className={`w-12 h-12 mb-4 ${isUploading ? 'animate-bounce' : ''} text-gray-400`} />
       <p className="mb-2 text-lg font-semibold text-gray-700">
@@ -63,6 +91,11 @@ export function DropZone({ onFileSelect, isDragging, setIsDragging, isUploading 
       <p className="text-sm text-gray-500">
         支持格式：JPG、PNG、GIF（最大 10MB）
       </p>
+      {disabled && (
+        <p className="text-sm text-gray-500 mt-2">正在上传中，请等待...</p>
+      )}
     </div>
   );
 }
+
+export default DropZone;

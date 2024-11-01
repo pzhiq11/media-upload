@@ -12,6 +12,32 @@ const __dirname = dirname(__filename);
 const app = express();
 const upload = multer({ dest: 'uploads/' });
 
+// 存储上传历史的文件路径
+const HISTORY_FILE = './upload-history.json';
+
+// 读取历史记录
+function readHistory() {
+  try {
+    if (fs.existsSync(HISTORY_FILE)) {
+      const data = fs.readFileSync(HISTORY_FILE, 'utf8');
+      return JSON.parse(data);
+    }
+    return [];
+  } catch (error) {
+    console.error('读取历史记录失败:', error);
+    return [];
+  }
+}
+
+// 保存历史记录
+function saveHistory(history) {
+  try {
+    fs.writeFileSync(HISTORY_FILE, JSON.stringify(history, null, 2));
+  } catch (error) {
+    console.error('保存历史记录失败:', error);
+  }
+}
+
 // 配置七牛云
 const mac = new qiniu.auth.digest.Mac(
   process.env.QINIU_ACCESS_KEY,
@@ -19,10 +45,7 @@ const mac = new qiniu.auth.digest.Mac(
 );
 
 const config = new qiniu.conf.Config();
-// config.zone = qiniu.zone.Zone_z0; // 华东机房
-// config.zone = qiniu.zone.Zone_z1; // 华北机房
-config.zone = qiniu.zone.Zone_z2; // 华南机房
-// config.zone = qiniu.zone.Zone_na0; // 北美机房
+config.zone = qiniu.zone.Zone_z2;
 
 const formUploader = new qiniu.form_up.FormUploader(config);
 const putExtra = new qiniu.form_up.PutExtra();
@@ -30,22 +53,25 @@ const putExtra = new qiniu.form_up.PutExtra();
 app.use(cors());
 app.use(express.json());
 
+// 获取上传历史的接口
+app.get('/api/upload-history', (req, res) => {
+  const history = readHistory();
+  res.json(history);
+});
+
+// 上传文件接口
 app.post('/api/upload', upload.single('image'), async (req, res) => {
   try {
     if (!req.file) {
       return res.status(400).json({ error: '没有上传文件' });
     }
 
-    // 获取文件扩展名
     const ext = req.file.originalname.split('.').pop().toLowerCase();
-    // 生成随机字符串作为文件名
     const randomString = Math.random().toString(36).substring(2, 10);
-    // 规范的文件命名格式：yyyy-mm-dd/random-string.ext
     const date = new Date();
     const datePrefix = `${date.getFullYear()}${String(date.getMonth() + 1).padStart(2, '0')}${String(date.getDate()).padStart(2, '0')}`;
     const key = `images/${datePrefix}/${randomString}.${ext}`;
 
-    // 生成上传凭证
     const options = {
       scope: process.env.QINIU_BUCKET,
       expires: 7200
@@ -59,7 +85,6 @@ app.post('/api/upload', upload.single('image'), async (req, res) => {
 
     const uploadPromise = new Promise((resolve, reject) => {
       formUploader.putFile(uploadToken, key, req.file.path, putExtra, (err, body, info) => {
-        console.log('response',err, body, info);
         if (err) {
           reject(err);
         }
@@ -73,7 +98,17 @@ app.post('/api/upload', upload.single('image'), async (req, res) => {
 
     const result = await uploadPromise;
     fs.unlinkSync(req.file.path);
-    const fileUrl = `${process.env.QINIU_DOMAIN}/images/${datePrefix}/${randomString}.${ext}`;
+    const fileUrl = `${process.env.QINIU_DOMAIN}/${key}`;
+
+    // 保存到历史记录
+    const history = readHistory();
+    history.unshift({
+      url: fileUrl,
+      key: key,
+      timestamp: Date.now()
+    });
+    saveHistory(history);
+
     res.json({
       url: fileUrl,
       key: key
