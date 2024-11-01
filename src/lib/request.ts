@@ -15,6 +15,15 @@ class RequestError extends Error {
 
 const BASE_URL = 'http://localhost:3000/api';
 
+const getUserId = () => {
+  let userId = localStorage.getItem('userId');
+  if (!userId) {
+    userId = `user_${Date.now()}_${Math.random().toString(36).substring(2, 9)}`;
+    localStorage.setItem('userId', userId);
+  }
+  return userId;
+};
+
 async function fetchCore<T>(
   url: string, 
   options?: RequestInit
@@ -24,6 +33,7 @@ async function fetchCore<T>(
       ...options,
       headers: {
         ...options?.headers,
+        'x-user-id': getUserId(),
       },
     });
     

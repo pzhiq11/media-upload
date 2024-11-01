@@ -15,6 +15,13 @@ config.zone = qiniu.zone.Zone_z2;
 const formUploader = new qiniu.form_up.FormUploader(config);
 const putExtra = new qiniu.form_up.PutExtra();
 
+// 确保历史记录文件存在
+const ensureHistoryFile = () => {
+  if (!fs.existsSync(HISTORY_FILE)) {
+    fs.writeFileSync(HISTORY_FILE, JSON.stringify({}), 'utf8');
+  }
+};
+
 export const uploadToQiniu = (file) => {
   return new Promise((resolve, reject) => {
     const ext = file.originalname.split('.').pop().toLowerCase();
@@ -49,21 +56,36 @@ export const uploadToQiniu = (file) => {
   });
 };
 
-export const readHistory = () => {
+export const readHistory = (userId) => {
   try {
-    if (fs.existsSync(HISTORY_FILE)) {
-      return JSON.parse(fs.readFileSync(HISTORY_FILE, 'utf8'));
+    ensureHistoryFile();
+    const content = fs.readFileSync(HISTORY_FILE, 'utf8');
+    // 处理空文件的情况
+    if (!content.trim()) {
+      return [];
     }
-    return [];
+    const allHistory = JSON.parse(content);
+    return allHistory[userId] || [];
   } catch (error) {
     console.error('读取历史记录失败:', error);
     return [];
   }
 };
 
-export const saveHistory = (history) => {
+export const saveHistory = (userId, userHistory) => {
   try {
-    fs.writeFileSync(HISTORY_FILE, JSON.stringify(history, null, 2));
+    ensureHistoryFile();
+    let allHistory = {};
+    const content = fs.readFileSync(HISTORY_FILE, 'utf8');
+    
+    // 处理空文件的情况
+    if (content.trim()) {
+      allHistory = JSON.parse(content);
+    }
+    
+    // 更新指定用户的历史记录
+    allHistory[userId] = userHistory;
+    fs.writeFileSync(HISTORY_FILE, JSON.stringify(allHistory, null, 2));
   } catch (error) {
     console.error('保存历史记录失败:', error);
   }
