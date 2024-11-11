@@ -5,9 +5,16 @@ import react from '@vitejs/plugin-react';
 export default defineConfig({
   plugins: [react()],
   base: './',
+  build: {
+    outDir: 'dist'
+  },
   server: {
     proxy: {
-      '/api': 'http://localhost:3000'
+      '/api': {
+        target: process.env.NODE_ENV === 'production' 
+          ? 'https://your-railway-app.railway.app'  // Railway 提供的域名
+          : 'http://localhost:3000'
+      }
     }
   }
 });

@@ -10,7 +10,8 @@
     "preview": "vite preview",
     "server": "node -r dotenv/config server/index.js",
     "start": "npm run build && npm run server",
-    "typecheck": "tsc --noEmit"
+    "typecheck": "tsc --noEmit",
+    "deploy": "npm run build && npm start"
   },
   "dependencies": {
     "cors": "^2.8.5",
@@ -38,5 +39,8 @@
     "typescript": "^5.2.2",
     "vite": "^5.1.0"
   },
-  "repository": "https://gitee.com/pzhiq/media-upload.git"
+  "repository": "https://gitee.com/pzhiq/media-upload.git",
+  "engines": {
+    "node": ">=14.0.0"
+  }
 }
