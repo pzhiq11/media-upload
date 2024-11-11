@@ -2,6 +2,7 @@ import React, { useCallback, useRef, useState } from 'react';
 import { Upload } from 'lucide-react';
 import { api } from '../lib/api';
 import type { UploadedFile } from '../lib/api';
+import toast from 'react-hot-toast';
 
 interface DropZoneProps {
   onUploadStart: () => void;
@@ -28,8 +29,10 @@ export const DropZone: React.FC<DropZoneProps> = ({
       try {
         const result = await api.uploadImage(file);
         onUploadSuccess(result);
+        toast.success('上传成功');
       } catch (error) {
         console.error('Upload failed:', error);
+        toast.error(error instanceof Error ? error.message : '上传失败');
       } finally {
         setIsUploading(false);
       }

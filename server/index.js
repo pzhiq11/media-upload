@@ -5,11 +5,15 @@ import { dirname, join } from 'path';
 import { responseHandler } from './middleware/response.js';
 import { errorHandler } from './middleware/error.js';
 import { uploadRouter } from './routes/upload.js';
+import { initDb } from './models/db.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
 
 const app = express();
+
+// 初始化数据库
+await initDb();
 
 app.use(cors());
 app.use(express.json());

@@ -13,7 +13,7 @@ class RequestError extends Error {
   }
 }
 
-const BASE_URL = 'http://localhost:3000/api';
+const BASE_URL = '/api';
 
 const getUserId = () => {
   let userId = localStorage.getItem('userId');
@@ -37,18 +37,21 @@ async function fetchCore<T>(
       },
     });
     
-    const result = await response.json();
-    
-    if (typeof result.code === 'undefined') {
-      return result as T;
+    if (!response.ok) {
+      throw new RequestError(
+        `HTTP error! status: ${response.status}`,
+        response.status
+      );
     }
     
-    const apiResponse = result as ApiResponse<T>;
-    if (apiResponse.code !== 0) {
-      throw new RequestError(apiResponse.message, apiResponse.code);
+    const result = await response.json() as ApiResponse<T>;
+    
+    // 处理业务错误
+    if (result.code !== 200) {
+      throw new RequestError(result.message, result.code);
     }
     
-    return apiResponse.data;
+    return result.data;
   } catch (error) {
     if (error instanceof RequestError) {
       throw error;
