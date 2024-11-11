@@ -1,7 +1,7 @@
 export const responseHandler = (req, res, next) => {
   res.success = (data = null, message = 'success') => {
     res.json({
-      code: 0,
+      code: 200,
       data,
       message
     });
