@@ -7,7 +7,7 @@ import type { UploadedFile } from './lib/api';
 function App() {
   const [uploadedFiles, setUploadedFiles] = useState<UploadedFile[]>([]);
   const [isUploading, setIsUploading] = useState(false);
-
+  console.log('pppp', uploadedFiles);
   useEffect(() => {
     const fetchHistory = async () => {
       try {
