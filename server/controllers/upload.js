@@ -66,17 +66,25 @@ export const getUploadHistory = async (req, res, next) => {
 // 添加新的控制器方法
 export const getRandomImage = async (req, res, next) => {
   try {
-    const userId = 'public_user';
+    let userId = req.headers['x-user-id'];
+    if (!userId) {
+      userId = 'public_user';
+    }
 
     try {
       const history = await uploadHistoryList(userId);
       if (history.length === 0) {
-        const width = Math.min(Math.max(parseInt(req.query.width) || 400, 1), 2000);
-        const height = Math.min(Math.max(parseInt(req.query.height) || 400, 1), 2000);
+        const width = Math.min(
+          Math.max(parseInt(req.query?.width) || 400, 1),
+          2000
+        );
+        const height = Math.min(
+          Math.max(parseInt(req.query?.height) || 400, 1),
+          2000
+        );
         const picsumImage = await getPicsumImage(width, height);
         if (picsumImage) {
-          res.setHeader('Content-Type', 'text/plain');
-          return res.send(picsumImage);
+          return res.success({ url: picsumImage, timestamp: Date.now() });
         }
         return res.error('暂无图片', 404);
       }
@@ -112,7 +120,6 @@ export const getRandomImageUrl = async (req, res, next) => {
       userId = 'public_user';
     }
 
-
     try {
       const history = await uploadHistoryList(userId);
       if (history.length > 0) {
@@ -121,7 +128,10 @@ export const getRandomImageUrl = async (req, res, next) => {
         const randomImage = history[randomIndex];
 
         const acceptHeader = req.headers.accept || '';
-        if (acceptHeader.includes('text/html') || acceptHeader.includes('image/')) {
+        if (
+          acceptHeader.includes('text/html') ||
+          acceptHeader.includes('image/')
+        ) {
           return res.redirect(randomImage.url);
         } else {
           res.setHeader('Content-Type', 'text/plain');
@@ -129,12 +139,21 @@ export const getRandomImageUrl = async (req, res, next) => {
         }
       }
 
-      const width = Math.min(Math.max(parseInt(req.query.width) || 400, 1), 2000);
-      const height = Math.min(Math.max(parseInt(req.query.height) || 400, 1), 2000);
+      const width = Math.min(
+        Math.max(parseInt(req.query.width) || 400, 1),
+        2000
+      );
+      const height = Math.min(
+        Math.max(parseInt(req.query.height) || 400, 1),
+        2000
+      );
       const picsumImage = await getPicsumImage(width, height);
       if (picsumImage) {
         const acceptHeader = req.headers.accept || '';
-        if (acceptHeader.includes('text/html') || acceptHeader.includes('image/')) {
+        if (
+          acceptHeader.includes('text/html') ||
+          acceptHeader.includes('image/')
+        ) {
           return res.redirect(picsumImage);
         } else {
           res.setHeader('Content-Type', 'text/plain');
