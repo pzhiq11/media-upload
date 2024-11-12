@@ -25,7 +25,6 @@ const UploadHistory: React.FC<UploadHistoryProps> = ({ files }) => {
 
   const formatDate = (timestamp: number) => {
     try {
-      // 确保时间戳是有效的数字
       const date = new Date(Number(timestamp));
       if (isNaN(date.getTime())) {
         return '未知时间';
@@ -81,4 +80,4 @@ const UploadHistory: React.FC<UploadHistoryProps> = ({ files }) => {
   );
 };
 
-export default UploadHistory; 
+export default UploadHistory;

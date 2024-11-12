@@ -56,4 +56,32 @@ export const getUploadHistory = async (req, res, next) => {
   } catch (error) {
     next(error);
   }
+};
+
+// 添加新的控制器方法
+export const getRandomImage = async (req, res, next) => {
+  try {
+    const userId = req.headers['x-user-id'];
+    if (!userId) {
+      return res.error('用户未认证', 401);
+    }
+
+    try {
+      const history = await uploadHistoryList(userId);
+      if (history.length === 0) {
+        return res.error('暂无图片', 404);
+      }
+      
+      // 随机选择一张图片
+      const randomIndex = Math.floor(Math.random() * history.length);
+      const randomImage = history[randomIndex];
+      
+      res.success(randomImage);
+    } catch (error) {
+      console.error('获取随机图片失败:', error);
+      res.error('获取随机图片失败');
+    }
+  } catch (error) {
+    next(error);
+  }
 }; 

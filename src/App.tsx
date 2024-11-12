@@ -1,13 +1,14 @@
 import React, { useState, useEffect } from 'react';
 import DropZone from './components/DropZone';
 import UploadHistory from './components/UploadHistory';
+import RandomImage from './components/RandomImage';
 import { api } from './lib/api';
 import type { UploadedFile } from './lib/api';
 
 function App() {
   const [uploadedFiles, setUploadedFiles] = useState<UploadedFile[]>([]);
   const [isUploading, setIsUploading] = useState(false);
-  console.log('pppp', uploadedFiles);
+
   useEffect(() => {
     const fetchHistory = async () => {
       try {
@@ -34,6 +35,7 @@ function App() {
         onUploadSuccess={handleUploadSuccess}
         disabled={isUploading}
       />
+      <RandomImage />
       <UploadHistory files={uploadedFiles} />
     </div>
   );
