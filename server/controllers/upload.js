@@ -71,7 +71,9 @@ export const getRandomImage = async (req, res, next) => {
     try {
       const history = await uploadHistoryList(userId);
       if (history.length === 0) {
-        const picsumImage = await getPicsumImage();
+        const width = Math.min(Math.max(parseInt(req.query.width) || 400, 1), 2000);
+        const height = Math.min(Math.max(parseInt(req.query.height) || 400, 1), 2000);
+        const picsumImage = await getPicsumImage(width, height);
         if (picsumImage) {
           res.setHeader('Content-Type', 'text/plain');
           return res.send(picsumImage);
@@ -79,7 +81,6 @@ export const getRandomImage = async (req, res, next) => {
         return res.error('暂无图片', 404);
       }
 
-      // 随机选择一张图片
       const randomIndex = Math.floor(Math.random() * history.length);
       const randomImage = history[randomIndex];
 
@@ -93,9 +94,9 @@ export const getRandomImage = async (req, res, next) => {
   }
 };
 
-export const getPicsumImage = async () => {
+export const getPicsumImage = async (width = 400, height = 400) => {
   try {
-    const picsumUrl = 'https://picsum.photos/800/600';
+    const picsumUrl = `https://picsum.photos/${width}/${height}`;
     const picsumResponse = await fetch(picsumUrl);
     return picsumResponse?.ok ? picsumResponse?.url : null;
   } catch (error) {
@@ -111,6 +112,7 @@ export const getRandomImageUrl = async (req, res, next) => {
       userId = 'public_user';
     }
 
+
     try {
       const history = await uploadHistoryList(userId);
       if (history.length > 0) {
@@ -118,21 +120,19 @@ export const getRandomImageUrl = async (req, res, next) => {
         const randomIndex = Math.floor(Math.random() * history.length);
         const randomImage = history[randomIndex];
 
-        // 检查 Accept 头，决定是返回重定向还是直接返回URL
         const acceptHeader = req.headers.accept || '';
         if (acceptHeader.includes('text/html') || acceptHeader.includes('image/')) {
-          // 如果是浏览器直接请求图片，返回重定向
           return res.redirect(randomImage.url);
         } else {
-          // 如果是API请求，返回URL文本
           res.setHeader('Content-Type', 'text/plain');
           return res.send(randomImage.url);
         }
       }
 
-      const picsumImage = await getPicsumImage();
+      const width = Math.min(Math.max(parseInt(req.query.width) || 400, 1), 2000);
+      const height = Math.min(Math.max(parseInt(req.query.height) || 400, 1), 2000);
+      const picsumImage = await getPicsumImage(width, height);
       if (picsumImage) {
-        // 同样检查 Accept 头
         const acceptHeader = req.headers.accept || '';
         if (acceptHeader.includes('text/html') || acceptHeader.includes('image/')) {
           return res.redirect(picsumImage);
