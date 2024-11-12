@@ -10,8 +10,7 @@
     "preview": "vite preview",
     "server": "node -r dotenv/config server/index.js",
     "start": "npm run build && npm run server",
-    "typecheck": "tsc --noEmit",
-    "deploy": "npm run build && npm start"
+    "typecheck": "tsc --noEmit"
   },
   "dependencies": {
     "cors": "^2.8.5",
