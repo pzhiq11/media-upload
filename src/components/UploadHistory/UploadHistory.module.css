@@ -1,0 +1,47 @@
+.container {
+  @apply mt-6;
+}
+
+.title {
+  @apply text-lg font-semibold mb-3;
+}
+
+.list {
+  @apply space-y-3;
+}
+
+.item {
+  @apply p-4 border rounded-lg bg-white shadow-sm;
+}
+
+.itemContent {
+  @apply flex items-center gap-4;
+}
+
+.image {
+  @apply w-16 h-16 object-cover rounded;
+}
+
+.info {
+  @apply flex-1 min-w-0;
+}
+
+.url {
+  @apply text-sm text-gray-500 truncate;
+}
+
+.timestamp {
+  @apply text-xs text-gray-400;
+}
+
+.copyButton {
+  @apply px-3 py-1 text-sm border rounded transition-colors duration-200;
+}
+
+.copyButton.copied {
+  @apply bg-green-500 text-white border-green-500;
+}
+
+.copyButton.default {
+  @apply text-blue-600 border-blue-600 hover:bg-blue-50;
+} 

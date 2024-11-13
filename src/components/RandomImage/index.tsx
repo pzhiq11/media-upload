@@ -1,7 +1,9 @@
 import React, { useState } from 'react';
-import { api } from '../lib/api';
+import { api } from '@/lib/api';
 import toast from 'react-hot-toast';
-import type { UploadedFile } from '../lib/api';
+import styles from './RandomImage.module.css';
+import { formatDate } from '@/utils/date';
+import type { UploadedFile } from '@/types';
 
 const RandomImage: React.FC = () => {
   const [loading, setLoading] = useState(false);
@@ -29,14 +31,12 @@ const RandomImage: React.FC = () => {
       const result = await api.getRandomImage();
       setRandomImage(result);
       
-      // 自动复制并显示状态变化
       try {
         await navigator.clipboard.writeText(result.url);
         setLoading(false);
         setGetButtonCopied(true);
         toast.success('随机图片URL已复制到剪贴板');
         
-        // 2秒后恢复按钮原始状态
         setTimeout(() => {
           setGetButtonCopied(false);
         }, 2000);
@@ -52,69 +52,48 @@ const RandomImage: React.FC = () => {
     }
   };
 
-  const formatDate = (timestamp: number) => {
-    try {
-      const date = new Date(Number(timestamp));
-      if (isNaN(date.getTime())) {
-        return '未知时间';
-      }
-      return date.toLocaleString('zh-CN', {
-        year: 'numeric',
-        month: '2-digit',
-        day: '2-digit',
-        hour: '2-digit',
-        minute: '2-digit',
-        second: '2-digit',
-        hour12: false
-      });
-    } catch (error) {
-      console.error('时间格式化错误:', error);
-      return '未知时间';
-    }
-  };
 
   return (
-    <div className="mb-8 mt-4">
-      <div className="flex justify-between items-center mb-3">
-        <h3 className="text-lg font-semibold">随机图片</h3>
+    <div className={styles.container}>
+      <div className={styles.header}>
+        <h3 className={styles.title}>随机图片</h3>
         <button
           onClick={handleGetRandom}
           disabled={loading}
-          className={`px-4 py-2 text-sm rounded transition-colors duration-200 
-            ${loading 
-              ? 'bg-gray-200 text-gray-500 cursor-not-allowed'
+          className={`${styles.button} ${
+            loading 
+              ? styles.loading
               : getButtonCopied
-                ? 'bg-green-500 text-white'
-                : 'bg-blue-500 text-white hover:bg-blue-600'}`}
+                ? styles.copied
+                : styles.default
+          }`}
         >
           {loading ? '获取中...' : getButtonCopied ? '已复制' : '获取随机图片'}
         </button>
       </div>
 
       {randomImage && (
-        <div className="p-4 border rounded-lg bg-white shadow-sm">
-          <div className="flex items-center gap-4">
+        <div className={styles.imageContainer}>
+          <div className={styles.imageContent}>
             <img 
               src={randomImage.url} 
               alt="随机图片" 
-              className="w-24 h-24 object-cover rounded"
+              className={styles.image}
             />
-            <div className="flex-1 min-w-0">
-              <div className="flex items-center justify-between mb-1">
-                <p className="text-sm font-medium text-gray-700">当前随机图片：</p>
+            <div className={styles.info}>
+              <div className={styles.infoHeader}>
+                <p className={styles.infoTitle}>当前随机图片：</p>
                 <button
                   onClick={() => handleCopy(randomImage.url)}
-                  className={`px-3 py-1 text-sm border rounded transition-colors duration-200 ${
-                    copiedUrl
-                      ? 'bg-green-500 text-white border-green-500'
-                      : 'text-blue-600 border-blue-600 hover:bg-blue-50'
+                  className={`${styles.copyButton} ${
+                    copiedUrl ? styles.copied : styles.default
                   }`}
                 >
                   {copiedUrl ? '已复制' : '复制链接'}
                 </button>
               </div>
-              <p className="text-sm text-gray-500 truncate">{randomImage.url}</p>
-              <p className="text-xs text-gray-400 mt-1">
+              <p className={styles.url}>{randomImage.url}</p>
+              <p className={styles.timestamp}>
                 {formatDate(randomImage.timestamp)}
               </p>
             </div>
@@ -125,4 +104,4 @@ const RandomImage: React.FC = () => {
   );
 };
 
-export default RandomImage;
+export default RandomImage; 

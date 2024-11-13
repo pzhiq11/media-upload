@@ -3,7 +3,7 @@ import DropZone from './components/DropZone';
 import UploadHistory from './components/UploadHistory';
 import RandomImage from './components/RandomImage';
 import { api } from './lib/api';
-import type { UploadedFile } from './lib/api';
+import type { UploadedFile } from './types';
 
 function App() {
   const [uploadedFiles, setUploadedFiles] = useState<UploadedFile[]>([]);

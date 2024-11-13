@@ -1,16 +1,11 @@
 import React, { useCallback, useRef, useState } from 'react';
 import { Upload } from 'lucide-react';
-import { api } from '../lib/api';
-import type { UploadedFile } from '../lib/api';
+import { api } from '@/lib/api';
 import toast from 'react-hot-toast';
+import styles from './DropZone.module.css';
+import type { DropZoneProps } from './types';
 
-interface DropZoneProps {
-  onUploadStart: () => void;
-  onUploadSuccess: (file: UploadedFile) => void;
-  disabled?: boolean;
-}
-
-export const DropZone: React.FC<DropZoneProps> = ({
+const DropZone: React.FC<DropZoneProps> = ({
   onUploadStart,
   onUploadSuccess,
   disabled,
@@ -82,13 +77,9 @@ export const DropZone: React.FC<DropZoneProps> = ({
 
   return (
     <div
-      className={`relative w-full h-64 border-2 border-dashed rounded-lg transition-colors duration-200 flex flex-col items-center justify-center p-6 text-center cursor-pointer
-        ${
-          isDragging
-            ? 'border-blue-500 bg-blue-50'
-            : 'border-gray-300 bg-gray-50 hover:bg-gray-100'
-        }
-        ${isUploading ? 'pointer-events-none opacity-50' : ''}`}
+      className={`${styles.dropzone} ${
+        isDragging ? styles.dragging : styles.default
+      } ${isUploading ? styles.disabled : ''}`}
       onDragEnter={handleDrag}
       onDragLeave={handleDrag}
       onDragOver={handleDrag}
@@ -96,29 +87,27 @@ export const DropZone: React.FC<DropZoneProps> = ({
       onClick={handleClick}
     >
       <input
-        type='file'
+        type="file"
         ref={fileInputRef}
         onChange={handleChange}
-        accept='image/*'
-        className='hidden'
+        accept="image/*"
+        className="hidden"
         disabled={disabled}
       />
       <Upload
-        className={`w-12 h-12 mb-4 ${
-          isUploading ? 'animate-bounce' : ''
-        } text-gray-400`}
+        className={`${styles.icon} ${isUploading ? styles.uploading : ''}`}
       />
-      <p className='mb-2 text-lg font-semibold text-gray-700'>
+      <p className={styles.title}>
         {isUploading ? '上传中...' : '拖拽图片到这里，或点击选择'}
       </p>
-      <p className='text-sm text-gray-500'>
+      <p className={styles.subtitle}>
         支持格式：JPG、PNG、GIF（最大 10MB）
       </p>
       {disabled && (
-        <p className='text-sm text-gray-500 mt-2'>正在上传中，请等待...</p>
+        <p className={styles.disabledText}>正在上传中，请等待...</p>
       )}
     </div>
   );
 };
 
-export default DropZone;
+export default DropZone; 

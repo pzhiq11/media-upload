@@ -1,0 +1,35 @@
+.dropzone {
+  @apply relative w-full h-64 border-2 border-dashed rounded-lg transition-colors duration-200 flex flex-col items-center justify-center p-6 text-center cursor-pointer;
+}
+
+.dropzone.dragging {
+  @apply border-blue-500 bg-blue-50;
+}
+
+.dropzone.default {
+  @apply border-gray-300 bg-gray-50 hover:bg-gray-100;
+}
+
+.dropzone.disabled {
+  @apply pointer-events-none opacity-50;
+}
+
+.icon {
+  @apply w-12 h-12 mb-4 text-gray-400;
+}
+
+.icon.uploading {
+  @apply animate-bounce;
+}
+
+.title {
+  @apply mb-2 text-lg font-semibold text-gray-700;
+}
+
+.subtitle {
+  @apply text-sm text-gray-500;
+}
+
+.disabledText {
+  @apply text-sm text-gray-500 mt-2;
+} 
