@@ -101,7 +101,7 @@ const DropZone: React.FC<DropZoneProps> = ({
         {isUploading ? '上传中...' : '拖拽图片到这里，或点击选择'}
       </p>
       <p className={styles.subtitle}>
-        支持格式：JPG、PNG、GIF（最大 10MB）
+        支持格式：JPG、PNG、GIF（最大 xxxMB）
       </p>
       {disabled && (
         <p className={styles.disabledText}>正在上传中，请等待...</p>
