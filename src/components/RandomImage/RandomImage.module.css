@@ -1,0 +1,71 @@
+.container {
+  @apply mb-8 mt-4;
+}
+
+.header {
+  @apply flex justify-between items-center mb-3;
+}
+
+.title {
+  @apply text-lg font-semibold;
+}
+
+.button {
+  @apply px-4 py-2 text-sm rounded transition-colors duration-200;
+}
+
+.button.loading {
+  @apply bg-gray-200 text-gray-500 cursor-not-allowed;
+}
+
+.button.copied {
+  @apply bg-green-500 text-white;
+}
+
+.button.default {
+  @apply bg-blue-500 text-white hover:bg-blue-600;
+}
+
+.imageContainer {
+  @apply p-4 border rounded-lg bg-white shadow-sm;
+}
+
+.imageContent {
+  @apply flex items-center gap-4;
+}
+
+.image {
+  @apply w-24 h-24 object-cover rounded;
+}
+
+.info {
+  @apply flex-1 min-w-0;
+}
+
+.infoHeader {
+  @apply flex items-center justify-between mb-1;
+}
+
+.infoTitle {
+  @apply text-sm font-medium text-gray-700;
+}
+
+.copyButton {
+  @apply px-3 py-1 text-sm border rounded transition-colors duration-200;
+}
+
+.copyButton.copied {
+  @apply bg-green-500 text-white border-green-500;
+}
+
+.copyButton.default {
+  @apply text-blue-600 border-blue-600 hover:bg-blue-50;
+}
+
+.url {
+  @apply text-sm text-gray-500 truncate;
+}
+
+.timestamp {
+  @apply text-xs text-gray-400 mt-1;
+} 

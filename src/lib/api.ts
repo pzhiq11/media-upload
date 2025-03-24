@@ -17,5 +17,10 @@ export const api = {
   // 获取上传历史
   getUploadHistory: () => {
     return request.get<UploadedFile[]>('/upload-history');
+  },
+
+  // 获取随机图片
+  getRandomImage: () => {
+    return request.get<UploadedFile>('/random-image');
   }
 };

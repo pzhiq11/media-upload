@@ -6,7 +6,7 @@ const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
 const sequelize = new Sequelize(
   process.env.NODE_ENV === 'production'
-    ? process.env.DATABASE_URL // Railway 会自动提供这个环境变量
+    ? process.env.DATABASE_URL 
     : {
         dialect: 'sqlite',
         storage: path.join(__dirname, '../../database.sqlite'),

@@ -9,7 +9,7 @@ const mac = new qiniu.auth.digest.Mac(
 );
 
 const config = new qiniu.conf.Config();
-config.zone = qiniu.zone.Zone_z2;
+config.zone = qiniu.zone.Zone_as0;
 
 const formUploader = new qiniu.form_up.FormUploader(config);
 const putExtra = new qiniu.form_up.PutExtra();

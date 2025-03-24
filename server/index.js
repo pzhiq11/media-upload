@@ -34,6 +34,11 @@ app.get('*', (req, res) => {
 app.use(errorHandler);
 
 const PORT = process.env.PORT || 3000;
+const NODE_ENV = process.env.NODE_ENV || 'development';
+const protocol = NODE_ENV === 'production' ? 'https' : 'http';
+
 app.listen(PORT, () => {
-  console.log(`服务器运行在端口 ${PORT}`);
+  console.log(`环境: ${NODE_ENV}`);
+  console.log(`应用访问地址: ${protocol}://localhost:${PORT} \n 端口: ${PORT}` );
+  // console.log(`随机图片URL接口: ${protocol}://${host}:${PORT}/api/random-url`);
 });
