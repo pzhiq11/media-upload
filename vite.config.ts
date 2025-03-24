@@ -13,14 +13,5 @@ export default defineConfig({
     alias: {
       '@': path.resolve(__dirname, './src')
     }
-  },
-  server: {
-    proxy: {
-      '/api': {
-        target: process.env.NODE_ENV === 'production' 
-          ? 'https://your-railway-app.railway.app'  // Railway 提供的域名
-          : 'http://localhost:3000'
-      }
-    }
   }
 });
