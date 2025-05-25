@@ -1,27 +1,37 @@
 import { Sequelize } from 'sequelize';
-import path from 'path';
-import { fileURLToPath } from 'url';
 
-const __dirname = path.dirname(fileURLToPath(import.meta.url));
+const isProduction = process.env.NODE_ENV === 'production';
 
-const sequelize = new Sequelize(
-  process.env.NODE_ENV === 'production'
-    ? process.env.DATABASE_URL 
-    : {
-        dialect: 'sqlite',
-        storage: path.join(__dirname, '../../database.sqlite'),
-        logging: false
-      }
-);
+// 添加调试日志
+console.log('环境变量:', {
+  NODE_ENV: process.env.NODE_ENV,
+  DB_HOST: process.env.DB_HOST,
+  DB_PORT: process.env.DB_PORT,
+  DB_NAME: process.env.DB_NAME,
+  DB_USER: process.env.DB_USER,
+  DATABASE_URL: process.env.DATABASE_URL
+});
 
-if (process.env.NODE_ENV === 'production') {
-  sequelize.options.dialectOptions = {
-    ssl: {
-      require: true,
-      rejectUnauthorized: false
-    }
-  };
-}
+const sequelize = isProduction
+  ? new Sequelize(process.env.DATABASE_URL, {
+      dialect: 'postgres',
+      dialectOptions: {
+        ssl: {
+          require: true,
+          rejectUnauthorized: false
+        }
+      },
+      logging: false
+    })
+  : new Sequelize({
+      dialect: 'postgres',
+      host: process.env.DB_HOST || 'localhost',
+      port: process.env.DB_PORT || 5432,
+      database: process.env.DB_NAME || 'media_upload',
+      username: process.env.DB_USER || 'postgres',
+      password: process.env.DB_PASSWORD || 'postgres',
+      logging: false
+    });
 
 export async function initDb() {
   try {

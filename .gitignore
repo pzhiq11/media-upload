@@ -2,3 +2,8 @@
 node_modules/
 # VSCode
 .vscode/
+# Database
+database.sqlite
+# Environment
+.env
+.env.local
