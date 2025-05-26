@@ -22,5 +22,8 @@
       "src": "/(.*)",
       "dest": "/dist/$1"
     }
-  ]
+  ],
+  "env": {
+    "DATABASE_URL": "postgres://accelerate.prisma-data.net/?api_key=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJhcGlfa2V5IjoiMDFKVzVXQTA5VE1TV1hXUzRSMEQ0MlJFQzkiLCJ0ZW5hbnRfaWQiOiJiOThjNzQxZWE4NTc2YTRiZDNlMWJhOGNjZmI3ZGFjOGZkYjU2MTg3OGFhZjFiYzY4ZjhjOWExMzJhMjYwMDRmIiwiaW50ZXJuYWxfc2VjcmV0IjoiZjIyZTA5ODUtOWExMi00NTBmLWE3MmUtZWIzYWRjOGNiYjI2In0.5WWA29X-GupciQFYSqAt8HIMeBoU-jCknOUv3w9BpAk"
+  }
 } 
